@@ -12,11 +12,15 @@ import java.util.Collection;
 import java.util.List;
 import lombok.Getter;
 import lombok.Setter;
+import org.hibernate.annotations.SQLDelete;
+import org.hibernate.annotations.SQLRestriction;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
 
 @Entity
+@SQLDelete(sql = "UPDATE users SET is_deleted = true WHERE id = ?")
+@SQLRestriction("is_deleted=false")
 @Getter
 @Setter
 @Table(name = "users")
@@ -41,9 +45,13 @@ public class User implements UserDetails {
     @Column(nullable = false)
     private Role role;
 
+    @Column(nullable = false)
+    private boolean isDeleted = false;
+
     public enum Role {
         CUSTOMER,
-        MANAGER
+        MANAGER,
+        ADMIN
     }
 
     @Override
@@ -55,7 +63,7 @@ public class User implements UserDetails {
 
     @Override
     public String getUsername() {
-        return getFirstName();
+        return getEmail();
     }
 
     @Override

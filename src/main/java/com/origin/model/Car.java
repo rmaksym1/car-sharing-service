@@ -1,5 +1,6 @@
 package com.origin.model;
 
+import com.origin.model.enums.CarType;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.EnumType;
@@ -11,8 +12,12 @@ import jakarta.persistence.Table;
 import java.math.BigDecimal;
 import lombok.Getter;
 import lombok.Setter;
+import org.hibernate.annotations.SQLDelete;
+import org.hibernate.annotations.SQLRestriction;
 
 @Entity
+@SQLDelete(sql = "UPDATE cars SET is_deleted = true WHERE id = ?")
+@SQLRestriction("is_deleted=false")
 @Getter
 @Setter
 @Table(name = "cars")
@@ -29,18 +34,14 @@ public class Car {
 
     @Enumerated(EnumType.STRING)
     @Column(nullable = false)
-    private CarType type;
-
-    public enum CarType {
-        SEDAN,
-        SUV,
-        HATCHBACK,
-        UNIVERSAL
-    }
+    private CarType carType;
 
     @Column(nullable = false)
     private int inventory;
 
     @Column(nullable = false, precision = 10, scale = 2)
     private BigDecimal dailyFee;
+
+    @Column(nullable = false)
+    private boolean isDeleted = false;
 }
