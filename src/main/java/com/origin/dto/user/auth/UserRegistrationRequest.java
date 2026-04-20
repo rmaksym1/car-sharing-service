@@ -1,9 +1,9 @@
-package com.origin.dto.user;
+package com.origin.dto.user.auth;
 
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.Size;
 
-public record UserLoginRequest(
+public record UserRegistrationRequest(
         @NotBlank(message = "Email cannot be blank")
         @Size(min = 8, max = 50)
         String email,
