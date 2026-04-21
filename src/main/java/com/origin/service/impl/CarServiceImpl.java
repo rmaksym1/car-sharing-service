@@ -61,7 +61,7 @@ public class CarServiceImpl implements CarService {
 
     @Override
     public void deleteCarById(Long id) {
-        carRepository.deleteById(id);
+        carRepository.findById(id).ifPresent(carRepository::delete);
     }
 
     public Car findCarOrThrow(Long id) {
