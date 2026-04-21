@@ -1,10 +1,9 @@
 package com.origin.exception;
 
+import com.origin.exception.car.CarNotAvailableException;
 import java.time.LocalDateTime;
 import java.util.HashMap;
 import java.util.Map;
-
-import com.origin.exception.car.CarNotAvailableException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.http.HttpStatus;

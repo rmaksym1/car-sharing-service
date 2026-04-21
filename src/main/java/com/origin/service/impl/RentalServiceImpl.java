@@ -2,9 +2,9 @@ package com.origin.service.impl;
 
 import com.origin.dto.rental.CreateRentalRequest;
 import com.origin.dto.rental.RentalResponse;
-import com.origin.exception.car.CarNotAvailableException;
 import com.origin.exception.EntityNotFoundException;
 import com.origin.exception.car.CarAlreadyReturnedException;
+import com.origin.exception.car.CarNotAvailableException;
 import com.origin.mapper.RentalMapper;
 import com.origin.model.Car;
 import com.origin.model.Rental;
