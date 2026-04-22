@@ -1,5 +1,7 @@
 package com.origin.model;
 
+import com.origin.model.enums.PaymentStatus;
+import com.origin.model.enums.PaymentType;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.EnumType;
@@ -26,7 +28,7 @@ public class Payment {
 
     @Enumerated(EnumType.STRING)
     @Column(nullable = false)
-    private Status status;
+    private PaymentStatus status;
 
     @Enumerated(EnumType.STRING)
     @Column(nullable = false)
@@ -44,15 +46,4 @@ public class Payment {
 
     @Column(name = "amount_to_pay", nullable = false, precision = 10, scale = 2)
     private BigDecimal amountToPay;
-
-    public enum Status {
-        PENDING,
-        PAID,
-        EXPIRED
-    }
-
-    public enum PaymentType {
-        PAYMENT,
-        FINE
-    }
 }
