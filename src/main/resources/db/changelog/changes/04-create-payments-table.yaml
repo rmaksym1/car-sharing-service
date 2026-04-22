@@ -32,12 +32,12 @@ databaseChangeLog:
                     references: rentals(id)
               - column:
                   name: session_url
-                  type: varchar(255)
+                  type: varchar(1000)
                   constraints:
                     nullable: false
               - column:
                   name: session_id
-                  type: varchar(255)
+                  type: varchar(1000)
                   constraints:
                     nullable: false
               - column:
