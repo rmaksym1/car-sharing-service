@@ -9,7 +9,8 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.security.authentication.BadCredentialsException;
+import org.springframework.security.access.AccessDeniedException;
+import org.springframework.security.core.AuthenticationException;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
@@ -42,15 +43,28 @@ public class GlobalExceptionHandler {
                 ex.getMessage());
     }
 
-    @ExceptionHandler(BadCredentialsException.class)
-    public ResponseEntity<Object> handleBadCredentialsException(BadCredentialsException ex) {
-        return buildErrorResponse(HttpStatus.BAD_REQUEST,
+    @ExceptionHandler(AuthenticationException.class)
+    public ResponseEntity<Object> handleBadCredentialsException(AuthenticationException ex) {
+        return buildErrorResponse(HttpStatus.UNAUTHORIZED,
                 ex.getMessage());
     }
 
     @ExceptionHandler(MethodArgumentNotValidException.class)
-    public ResponseEntity<Object> handleValidationErrors(MethodArgumentNotValidException ex) {
-        return buildErrorResponse(HttpStatus.BAD_REQUEST,
+    public ResponseEntity<Object> handleValidationException(MethodArgumentNotValidException ex) {
+
+        Map<String, String> errors = new HashMap<>();
+
+        ex.getBindingResult().getFieldErrors()
+                .forEach(error ->
+                        errors.put(error.getField(), error.getDefaultMessage())
+        );
+
+        return buildErrorResponse(HttpStatus.BAD_REQUEST, errors.toString());
+    }
+
+    @ExceptionHandler(AccessDeniedException.class)
+    public ResponseEntity<Object> handleAccessDeniedException(AccessDeniedException ex) {
+        return buildErrorResponse(HttpStatus.FORBIDDEN,
                 ex.getMessage());
     }
 

@@ -64,7 +64,7 @@ public class CarServiceImpl implements CarService {
         carRepository.findById(id).ifPresent(carRepository::delete);
     }
 
-    public Car findCarOrThrow(Long id) {
+    private Car findCarOrThrow(Long id) {
         return carRepository.findById(id)
                 .orElseThrow(() -> new EntityNotFoundException("Car by id: " + id + " not found!")
                 );

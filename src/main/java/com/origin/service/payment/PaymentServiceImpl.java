@@ -9,12 +9,15 @@ import com.origin.model.Payment;
 import com.origin.model.Rental;
 import com.origin.model.User;
 import com.origin.model.enums.PaymentStatus;
+import com.origin.model.enums.PaymentType;
 import com.origin.repository.payment.PaymentRepository;
 import com.origin.repository.rental.RentalRepository;
 import com.origin.service.PaymentService;
 import com.stripe.exception.StripeException;
 import com.stripe.model.checkout.Session;
+import jakarta.transaction.Transactional;
 import java.math.BigDecimal;
+import java.time.LocalDate;
 import java.time.temporal.ChronoUnit;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
@@ -24,12 +27,14 @@ import org.springframework.stereotype.Service;
 @Service
 @RequiredArgsConstructor
 public class PaymentServiceImpl implements PaymentService {
+    private static final BigDecimal FINE_MULTIPLIER = BigDecimal.valueOf(1.15);
     private final PaymentRepository paymentRepository;
     private final RentalRepository rentalRepository;
     private final StripeService stripeService;
     private final PaymentMapper paymentMapper;
 
     @Override
+    @Transactional
     public PaymentResponse createPayment(CreatePaymentRequest request) {
         Rental rental = rentalRepository.findById(request.rentalId()).orElseThrow(
                 () -> new EntityNotFoundException("Rental by id: "
@@ -37,21 +42,17 @@ public class PaymentServiceImpl implements PaymentService {
                         + " not found!")
         );
 
-        BigDecimal rentPrice = calculateTotalRentPrice(rental);
+        validatePaymentState(rental, request);
+
+        BigDecimal price = request.paymentType() == PaymentType.PAYMENT
+                ? calculateTotalRentPrice(rental)
+                : calculateFinePrice(rental);
 
         Payment payment = paymentMapper.toModel(request);
         payment.setStatus(PaymentStatus.PENDING);
-        payment.setAmountToPay(rentPrice);
+        payment.setAmountToPay(price);
 
-        try {
-            Session session = stripeService.createStripeSession(rental, rentPrice);
-            payment.setSessionUrl(session.getUrl());
-            payment.setSessionId(session.getId());
-
-            return paymentMapper.toDto(paymentRepository.save(payment));
-        } catch (StripeException e) {
-            throw new PaymentProcessingException("Can't create Stripe session: " + e.getMessage());
-        }
+        return processPayment(rental, payment, request);
     }
 
     @Override
@@ -100,5 +101,63 @@ public class PaymentServiceImpl implements PaymentService {
         long daysRented = ChronoUnit.DAYS.between(rental.getRentalDate(), rental.getReturnDate());
         return rental.getCar().getDailyFee()
                 .multiply(BigDecimal.valueOf(daysRented));
+    }
+
+    private void validateOverdue(Rental rental) {
+        LocalDate endDate = rental.getActualReturnDate() != null
+                ? rental.getActualReturnDate()
+                : LocalDate.now();
+
+        if (!endDate.isAfter(rental.getReturnDate())) {
+            throw new PaymentProcessingException("No overdue");
+        }
+    }
+
+    private BigDecimal calculateFinePrice(Rental rental) {
+        BigDecimal daysOverdue = BigDecimal.valueOf(
+                Math.max(0, ChronoUnit.DAYS.between(
+                        rental.getReturnDate(),
+                        rental.getActualReturnDate()
+                ))
+        );
+
+        return rental.getCar()
+                .getDailyFee()
+                .multiply(daysOverdue)
+                .multiply(FINE_MULTIPLIER);
+    }
+
+    private void validatePaymentState(Rental rental, CreatePaymentRequest request) {
+        if (request.paymentType() == PaymentType.PAYMENT
+                && paymentRepository.existsByRentalAndStatus(rental, PaymentStatus.PAID)) {
+            throw new PaymentProcessingException("Rental by id: " + rental.getId()
+                    + " is already paid!");
+        }
+
+        if (paymentRepository.existsByRentalAndStatus(rental, PaymentStatus.PENDING)) {
+            throw new PaymentProcessingException("Payment session is already active!");
+        }
+
+        if (request.paymentType() == PaymentType.FINE) {
+            validateOverdue(rental);
+        }
+    }
+
+    private PaymentResponse processPayment(
+            Rental rental,
+            Payment payment,
+            CreatePaymentRequest request) {
+        try {
+            Session session = stripeService.createStripeSession(rental,
+                    payment.getAmountToPay(),
+                    request.paymentType());
+            payment.setSessionUrl(session.getUrl());
+            payment.setSessionId(session.getId());
+
+            return paymentMapper.toDto(paymentRepository.save(payment));
+        } catch (StripeException e) {
+            throw new PaymentProcessingException("Can't create stripe session: "
+                    + e.getMessage());
+        }
     }
 }
