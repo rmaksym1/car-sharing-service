@@ -1,4 +1,4 @@
-package com.origin.controller;
+package com.origin.controller.payment;
 
 import com.origin.dto.payment.CreatePaymentRequest;
 import com.origin.dto.payment.PaymentResponse;

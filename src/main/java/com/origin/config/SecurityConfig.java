@@ -40,7 +40,8 @@ public class SecurityConfig {
                                 "/swagger-ui/**",
                                 "/v3/api-docs/**",
                                 "/payments/success/**",
-                                "/payments/cancel/**")
+                                "/payments/cancel/**",
+                                "/webhooks/**")
                         .permitAll()
 
                         .requestMatchers(HttpMethod.GET, "/cars/**").permitAll()
