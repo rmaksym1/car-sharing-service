@@ -9,6 +9,7 @@ import com.origin.mapper.RentalMapper;
 import com.origin.model.Car;
 import com.origin.model.Rental;
 import com.origin.model.User;
+import com.origin.notification.NotificationService;
 import com.origin.repository.car.CarRepository;
 import com.origin.repository.rental.RentalRepository;
 import com.origin.service.RentalService;
@@ -25,6 +26,7 @@ public class RentalServiceImpl implements RentalService {
     private final CarRepository carRepository;
     private final RentalRepository rentalRepository;
     private final RentalMapper rentalMapper;
+    private final NotificationService notificationService;
 
     @Override
     @Transactional
@@ -45,6 +47,8 @@ public class RentalServiceImpl implements RentalService {
         rental.setRentalDate(LocalDate.now());
 
         car.setInventory(car.getInventory() - 1);
+
+        notificationService.sendRentalMessage(rental);
         return rentalMapper.toDto(rentalRepository.save(rental));
     }
 

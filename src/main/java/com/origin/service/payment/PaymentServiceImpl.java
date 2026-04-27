@@ -10,6 +10,7 @@ import com.origin.model.Rental;
 import com.origin.model.User;
 import com.origin.model.enums.PaymentStatus;
 import com.origin.model.enums.PaymentType;
+import com.origin.notification.NotificationService;
 import com.origin.repository.payment.PaymentRepository;
 import com.origin.repository.rental.RentalRepository;
 import com.origin.service.PaymentService;
@@ -32,6 +33,7 @@ public class PaymentServiceImpl implements PaymentService {
     private final RentalRepository rentalRepository;
     private final StripeService stripeService;
     private final PaymentMapper paymentMapper;
+    private final NotificationService notificationService;
 
     @Override
     @Transactional
@@ -154,6 +156,7 @@ public class PaymentServiceImpl implements PaymentService {
             payment.setSessionUrl(session.getUrl());
             payment.setSessionId(session.getId());
 
+            notificationService.sendCreatePaymentMessage(payment);
             return paymentMapper.toDto(paymentRepository.save(payment));
         } catch (StripeException e) {
             throw new PaymentProcessingException("Can't create stripe session: "
