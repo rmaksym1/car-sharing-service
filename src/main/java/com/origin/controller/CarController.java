@@ -34,7 +34,7 @@ public class CarController {
     @Operation(summary = "Create a car", description = "Endpoint for creating a car")
     @PostMapping
     @ResponseStatus(HttpStatus.CREATED)
-    @PreAuthorize("hasAnyRole('MANAGER', 'ADMIN')")
+    @PreAuthorize("hasAnyRole('MANAGER')")
     public CarResponse createCar(@RequestBody @Valid CreateCarRequest carRequest) {
         return carService.saveCar(carRequest);
     }
@@ -53,7 +53,7 @@ public class CarController {
 
     @Operation(summary = "Update car", description = "Endpoint for updating car specs")
     @PatchMapping("/{id}")
-    @PreAuthorize("hasAnyRole('MANAGER', 'ADMIN')")
+    @PreAuthorize("hasAnyRole('MANAGER')")
     public CarResponse updateCar(@RequestBody @Valid UpdateCarRequest updateCarRequest,
                           @PathVariable Long id) {
         return carService.updateCarById(updateCarRequest, id);
@@ -62,7 +62,7 @@ public class CarController {
     @Operation(summary = "Update car inventory",
             description = "Endpoint for updating car inventory")
     @PatchMapping("/{id}/inventory")
-    @PreAuthorize("hasAnyRole('MANAGER', 'ADMIN')")
+    @PreAuthorize("hasAnyRole('MANAGER')")
     public CarResponse updateCarInventory(
             @RequestBody @Valid UpdateCarInventoryRequest updateCarInventoryRequest,
             @PathVariable Long id
@@ -73,7 +73,7 @@ public class CarController {
     @Operation(summary = "Delete car by id", description = "Endpoint for deleting car")
     @DeleteMapping("/{id}")
     @ResponseStatus(HttpStatus.NO_CONTENT)
-    @PreAuthorize("hasAnyRole('MANAGER', 'ADMIN')")
+    @PreAuthorize("hasAnyRole('MANAGER')")
     public void deleteCar(@PathVariable Long id) {
         carService.deleteCarById(id);
     }
