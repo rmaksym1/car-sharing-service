@@ -52,3 +52,11 @@ databaseChangeLog:
               - column: { name: first_name, value: "admin" }
               - column: { name: last_name, value: "admin" }
               - column: { name: role, value: "ADMIN" }
+        - insert:
+            tableName: users
+            columns:
+              - column: { name: email, value: "manager@gmail.com" }
+              - column: { name: password, value: "$2a$08$qD8JtGiJUwPMJrH8S8M9zuR.ooUKJX2LrM8.DIQZ1Z1XhVIO5x/pK" }
+              - column: { name: first_name, value: "manager" }
+              - column: { name: last_name, value: "manager" }
+              - column: { name: role, value: "MANAGER" }

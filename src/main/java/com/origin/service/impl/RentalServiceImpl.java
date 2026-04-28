@@ -9,14 +9,19 @@ import com.origin.mapper.RentalMapper;
 import com.origin.model.Car;
 import com.origin.model.Rental;
 import com.origin.model.User;
+import com.origin.model.enums.PaymentStatus;
+import com.origin.notification.NotificationService;
 import com.origin.repository.car.CarRepository;
+import com.origin.repository.payment.PaymentRepository;
 import com.origin.repository.rental.RentalRepository;
 import com.origin.service.RentalService;
 import jakarta.transaction.Transactional;
 import java.time.LocalDate;
+import java.util.List;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
+import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
 
 @Service
@@ -25,26 +30,28 @@ public class RentalServiceImpl implements RentalService {
     private final CarRepository carRepository;
     private final RentalRepository rentalRepository;
     private final RentalMapper rentalMapper;
+    private final NotificationService notificationService;
+    private final PaymentRepository paymentRepository;
 
     @Override
     @Transactional
     public RentalResponse save(User user, CreateRentalRequest request) {
+        Rental rental = rentalMapper.toModel(request);
+
         Car car = carRepository.findById(request.carId()).orElseThrow(
                 () -> new EntityNotFoundException("Car by id: "
                         + request.carId() + " not found")
         );
 
-        if (car.getInventory() < 1) {
-            throw new CarNotAvailableException("Car with id: "
-                    + car.getId() + " is out of stock");
-        }
+        validateRentalCreation(user, car);
 
-        Rental rental = rentalMapper.toModel(request);
         rental.setCar(car);
         rental.setUser(user);
         rental.setRentalDate(LocalDate.now());
 
         car.setInventory(car.getInventory() - 1);
+
+        notificationService.sendRentalMessage(rental);
         return rentalMapper.toDto(rentalRepository.save(rental));
     }
 
@@ -88,6 +95,29 @@ public class RentalServiceImpl implements RentalService {
         Car car = rental.getCar();
         car.setInventory(car.getInventory() + 1);
         return rentalMapper.toDto(rental);
+    }
+
+    @Scheduled(cron = "0 0 10 * * *")
+    public void checkOverdueRentals() {
+        List<Rental> overdueRentals = rentalRepository
+                .findByReturnDateBeforeAndActualReturnDateIsNull(LocalDate.now());
+
+        for (Rental rental : overdueRentals) {
+            notificationService.sendOverdueMessage(rental);
+        }
+    }
+
+    private void validateRentalCreation(User user, Car car) {
+        if (car.getInventory() < 1) {
+            throw new CarNotAvailableException("Car with id: "
+                    + car.getId() + " is out of stock");
+        }
+
+        if (paymentRepository.existsByRentalUserAndStatus(
+                user, PaymentStatus.PENDING)
+        ) {
+            throw new CarNotAvailableException("You already have a payment for another rental");
+        }
     }
 
     private Rental getRentalByUserRoleAndId(User user, Long id) {
