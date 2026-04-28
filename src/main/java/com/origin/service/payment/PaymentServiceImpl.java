@@ -53,6 +53,7 @@ public class PaymentServiceImpl implements PaymentService {
         Payment payment = paymentMapper.toModel(request);
         payment.setStatus(PaymentStatus.PENDING);
         payment.setAmountToPay(price);
+        payment.setRental(rental);
 
         return processPayment(rental, payment, request);
     }

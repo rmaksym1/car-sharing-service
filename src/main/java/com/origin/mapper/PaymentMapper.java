@@ -9,10 +9,10 @@ import org.mapstruct.Mapping;
 
 @Mapper(config = MapperConfig.class)
 public interface PaymentMapper {
+
     @Mapping(source = "rental.id", target = "rentalId")
     PaymentResponse toDto(Payment payment);
 
-    @Mapping(source = "rentalId", target = "rental.id")
     @Mapping(source = "paymentType", target = "type")
     Payment toModel(CreatePaymentRequest request);
 }

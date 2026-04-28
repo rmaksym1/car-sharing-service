@@ -1,8 +1,11 @@
 package com.origin.dto.user.auth;
 
+import com.origin.validation.FieldMatch;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.Size;
 
+@FieldMatch(field = "password",
+        fieldToMatch = "repeatPassword")
 public record UserRegistrationRequest(
         @NotBlank(message = "Email cannot be blank")
         @Size(min = 8, max = 50)
@@ -15,5 +18,8 @@ public record UserRegistrationRequest(
         String lastName,
         @NotBlank(message = "Password cannot be blank")
         @Size(min = 8, max = 20)
-        String password
+        String password,
+        @NotBlank(message = "Repeat password cannot be blank")
+        @Size(min = 8, max = 20)
+        String repeatPassword
 ) {}

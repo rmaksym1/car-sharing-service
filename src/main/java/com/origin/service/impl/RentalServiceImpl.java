@@ -15,9 +15,11 @@ import com.origin.repository.rental.RentalRepository;
 import com.origin.service.RentalService;
 import jakarta.transaction.Transactional;
 import java.time.LocalDate;
+import java.util.List;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
+import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
 
 @Service
@@ -104,5 +106,15 @@ public class RentalServiceImpl implements RentalService {
                 .orElseThrow(() -> new EntityNotFoundException("Rental by id: "
                                 + id + " not found!")
                 );
+    }
+
+    @Scheduled(cron = "0 0 10 * * *")
+    public void checkOverdueRentals() {
+        List<Rental> overdueRentals = rentalRepository
+                .findByReturnDateBeforeAndActualReturnDateIsNull(LocalDate.now());
+
+        for (Rental rental : overdueRentals) {
+            notificationService.sendOverdueMessage(rental);
+        }
     }
 }

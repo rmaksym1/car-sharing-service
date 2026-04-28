@@ -4,6 +4,7 @@ import com.origin.exception.EntityNotFoundException;
 import com.origin.exception.payment.PaymentProcessingException;
 import com.origin.model.Payment;
 import com.origin.model.enums.PaymentStatus;
+import com.origin.notification.NotificationService;
 import com.origin.repository.payment.PaymentRepository;
 import com.stripe.exception.SignatureVerificationException;
 import com.stripe.model.Event;
@@ -20,6 +21,7 @@ import org.springframework.stereotype.Service;
 public class StripeWebhookService {
     private static final Logger log = LogManager.getLogger(StripeWebhookService.class);
     private final PaymentRepository paymentRepository;
+    private final NotificationService notificationService;
 
     @Value("${stripe.webhook.secret}")
     private String endpointSecret;
@@ -56,6 +58,15 @@ public class StripeWebhookService {
 
         payment.setStatus(status);
         paymentRepository.save(payment);
+        sendNotification(payment, status);
+    }
+
+    private void sendNotification(Payment payment, PaymentStatus status) {
+        switch (status) {
+            case PAID -> notificationService.sendPaymentSucceededMessage(payment);
+            case CANCELED -> notificationService.sendPaymentCancelledMessage(payment);
+            default -> { }
+        }
     }
 
     private Session getSession(Event event) {
