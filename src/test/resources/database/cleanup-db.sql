@@ -1,1 +1,4 @@
 DELETE FROM users;
+DELETE FROM cars;
+DELETE FROM rentals;
+DELETE FROM payments;
