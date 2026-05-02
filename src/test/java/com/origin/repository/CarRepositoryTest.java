@@ -49,11 +49,10 @@ class CarRepositoryTest {
     @Test
     @DisplayName("Should throw exception when saving car with null fields")
     void shouldThrowException_WhenSavingInvalidCar() {
-        Car car = TestUtil.createCar();
+        Car car = new Car();
 
         assertThrows(Exception.class, () -> {
             carRepository.save(car);
-            carRepository.flush();
         });
     }
 }

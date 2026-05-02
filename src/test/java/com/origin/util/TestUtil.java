@@ -4,6 +4,8 @@ import com.origin.dto.car.CarResponse;
 import com.origin.dto.car.CreateCarRequest;
 import com.origin.dto.car.UpdateCarInventoryRequest;
 import com.origin.dto.car.UpdateCarRequest;
+import com.origin.dto.payment.CreatePaymentRequest;
+import com.origin.dto.payment.PaymentResponse;
 import com.origin.dto.rental.CreateRentalRequest;
 import com.origin.dto.rental.RentalResponse;
 import com.origin.dto.user.UserResponse;
@@ -18,7 +20,10 @@ import com.origin.model.User;
 import com.origin.model.enums.CarType;
 import com.origin.model.enums.PaymentStatus;
 import com.origin.model.enums.PaymentType;
+import lombok.SneakyThrows;
+
 import java.math.BigDecimal;
+import java.net.URI;
 import java.time.LocalDate;
 
 public class TestUtil {
@@ -134,6 +139,22 @@ public class TestUtil {
                 .sessionId("session_123")
                 .amountToPay(BigDecimal.valueOf(99.99))
                 .build();
+    }
+
+    @SneakyThrows
+    public static PaymentResponse createPaymentResponse() {
+        return new PaymentResponse(1L,
+                PaymentStatus.PENDING,
+                PaymentType.PAYMENT,
+                1L,
+                URI.create("https://test.com").toURL(),
+                "session_id",
+                BigDecimal.valueOf(24.99)
+        );
+    }
+
+    public static CreatePaymentRequest createPaymentRequest(PaymentType type) {
+        return new CreatePaymentRequest(1L, type);
     }
 
     public static UpdateUserRoleRequest createUpdateUserRoleRequest() {

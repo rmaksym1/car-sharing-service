@@ -7,4 +7,7 @@ public class TestConstants {
             "/database/user/add-user-to-users-table.sql";
     public static final String ADD_RENTAL_DB_PATH =
             "/database/rental/add-rental-to-rentals-table.sql";
+
+    public static final String CUSTOMER_ROLE = "USER";
+    public static final String ADMIN_ROLE = "ADMIN";
 }
