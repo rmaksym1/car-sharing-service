@@ -64,7 +64,6 @@ public class StripeWebhookService {
     private void sendNotification(Payment payment, PaymentStatus status) {
         switch (status) {
             case PAID -> notificationService.sendPaymentSucceededMessage(payment);
-            case CANCELED -> notificationService.sendPaymentCancelledMessage(payment);
             default -> { }
         }
     }

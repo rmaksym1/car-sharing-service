@@ -14,13 +14,19 @@ import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
 import jakarta.persistence.Table;
 import java.math.BigDecimal;
+import lombok.AllArgsConstructor;
+import lombok.Builder;
 import lombok.Getter;
+import lombok.NoArgsConstructor;
 import lombok.Setter;
 
 @Entity
 @Getter
 @Setter
+@Builder
 @Table(name = "payments")
+@NoArgsConstructor
+@AllArgsConstructor
 public class Payment {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
