@@ -25,6 +25,7 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.Arguments;
+import org.junit.jupiter.params.provider.CsvSource;
 import org.junit.jupiter.params.provider.MethodSource;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
@@ -221,7 +222,10 @@ public class PaymentServiceTest {
     }
 
     @ParameterizedTest
-    @MethodSource("roleProvider")
+    @CsvSource({
+            "MANAGER, true",
+            "CUSTOMER, false"
+    })
     @DisplayName("Should return user's payments for user, any user payments for manager")
     void getPaymentsByRole_ReturnsPage(
             User.Role role,
@@ -357,13 +361,6 @@ public class PaymentServiceTest {
         return Stream.of(
                 Arguments.of(PaymentType.PAYMENT, regularRental, calculateRegularPayment(regularRental)),
                 Arguments.of(PaymentType.FINE, fineRental, calculateFine(fineRental))
-        );
-    }
-
-    static Stream<Arguments> roleProvider() {
-        return Stream.of(
-                Arguments.of(User.Role.CUSTOMER, false),
-                Arguments.of(User.Role.MANAGER, true)
         );
     }
 

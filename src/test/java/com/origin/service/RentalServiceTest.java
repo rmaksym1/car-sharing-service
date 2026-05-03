@@ -20,8 +20,7 @@ import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.junit.jupiter.params.ParameterizedTest;
-import org.junit.jupiter.params.provider.Arguments;
-import org.junit.jupiter.params.provider.MethodSource;
+import org.junit.jupiter.params.provider.CsvSource;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
@@ -32,7 +31,6 @@ import org.springframework.data.domain.Pageable;
 import java.time.LocalDate;
 import java.util.List;
 import java.util.Optional;
-import java.util.stream.Stream;
 
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.*;
@@ -154,7 +152,10 @@ class RentalServiceTest {
     }
 
     @ParameterizedTest
-    @MethodSource("getRentalRoleProvider")
+    @CsvSource({
+            "MANAGER, true",
+            "CUSTOMER, false"
+    })
     @DisplayName("Should return user's rentals depending on user's role")
     void getRentals_ByRole_ReturnsPage(
             User.Role role,
@@ -181,7 +182,10 @@ class RentalServiceTest {
     }
 
     @ParameterizedTest
-    @MethodSource("getRentalRoleProvider")
+    @CsvSource({
+            "MANAGER, true",
+            "CUSTOMER, false"
+    })
     @DisplayName("Should return unactive rentals depending on user role")
     void getNotActiveRentals_ByRole_ReturnsPage(
             User.Role role,
@@ -194,8 +198,15 @@ class RentalServiceTest {
         RentalResponse responseDto = TestUtil.createRentalResponse(TestUtil.createCarResponse());
         Page<Rental> rentals = new PageImpl<>(List.of(rental));
 
-        when(rentalRepository.findByUserIdAndActualReturnDateIsNotNull(ID, pageable)).thenReturn(rentals);
         when(rentalMapper.toDto(rental)).thenReturn(responseDto);
+
+        if (role == User.Role.MANAGER) {
+            when(rentalRepository.findByUserIdAndActualReturnDateIsNotNull(ID, pageable))
+                    .thenReturn(rentals);
+        } else {
+            when(rentalRepository.findByUserIdAndActualReturnDateIsNotNull(user.getId(), pageable))
+                    .thenReturn(rentals);
+        }
 
         Page<RentalResponse> actual = rentalService.getRentals(ID, false, user, pageable);
 
@@ -205,6 +216,7 @@ class RentalServiceTest {
         } else {
             verify(rentalRepository).findByUserIdAndActualReturnDateIsNotNull(user.getId(), pageable);
         }
+        verify(rentalMapper).toDto(rental);
     }
 
     @Test
@@ -227,7 +239,10 @@ class RentalServiceTest {
     }
 
     @ParameterizedTest
-    @MethodSource("getRentalRoleProvider")
+    @CsvSource({
+            "MANAGER, true",
+            "CUSTOMER, false"
+    })
     @DisplayName("Should return rental by id depending on user role")
     void getRentalById_ByRole_ReturnsResponse(
             User.Role role,
@@ -331,12 +346,5 @@ class RentalServiceTest {
         rentalService.checkOverdueRentals();
 
         verify(notificationService).sendOverdueMessage(overdueRental);
-    }
-
-    static Stream<Arguments> getRentalRoleProvider() {
-        return Stream.of(
-                Arguments.of(User.Role.MANAGER, true),
-                Arguments.of(User.Role.CUSTOMER, false)
-        );
     }
 }

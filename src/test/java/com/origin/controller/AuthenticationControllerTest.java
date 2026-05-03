@@ -1,6 +1,5 @@
 package com.origin.controller;
 
-import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.origin.dto.user.auth.UserLoginRequest;
 import com.origin.dto.user.auth.UserRegistrationRequest;
@@ -17,7 +16,6 @@ import org.springframework.test.web.servlet.MockMvc;
 import static com.origin.util.TestConstants.ADD_USER_DB_PATH;
 import static com.origin.util.TestConstants.CLEANUP_DB_PATH;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.put;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 

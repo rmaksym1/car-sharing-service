@@ -6,6 +6,8 @@ import com.origin.dto.user.profile.UserInfoUpdateRequest;
 import com.origin.util.TestUtil;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.CsvSource;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
@@ -16,6 +18,7 @@ import org.springframework.test.context.jdbc.Sql;
 import org.springframework.test.web.servlet.MockMvc;
 
 import static com.origin.util.TestConstants.*;
+import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.user;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
@@ -33,34 +36,23 @@ public class UserControllerTest {
     @Autowired
     private ObjectMapper objectMapper;
 
-    @Test
-    @DisplayName("Should successfully update user role by admin")
-    @WithMockUser(roles = ADMIN_ROLE)
+    @ParameterizedTest
+    @DisplayName("Should successfully update user role by role")
+    @CsvSource({
+            "ADMIN, 204",
+            "CUSTOMER, 403"
+    })
     @Sql(scripts = CLEANUP_DB_PATH, executionPhase = Sql.ExecutionPhase.BEFORE_TEST_METHOD)
     @Sql(scripts = ADD_USER_DB_PATH,
             executionPhase = Sql.ExecutionPhase.BEFORE_TEST_METHOD)
-    void updateUserRole_AsAdmin_ReturnsNoContent() throws Exception {
+    void updateUserRole_AsRole_ReturnsStatus(String role, int expectedStatus) throws Exception {
         UpdateUserRoleRequest request = TestUtil.createUpdateUserRoleRequest();
 
         mockMvc.perform(put(UPDATE_ROLE_URL, USER_ID)
+                        .with(user("test").roles(role))
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(request)))
-                .andExpect(status().isNoContent());
-    }
-
-    @Test
-    @DisplayName("Should successfully update user role by admin")
-    @WithMockUser(roles = CUSTOMER_ROLE)
-    @Sql(scripts = CLEANUP_DB_PATH, executionPhase = Sql.ExecutionPhase.BEFORE_TEST_METHOD)
-    @Sql(scripts = ADD_USER_DB_PATH,
-            executionPhase = Sql.ExecutionPhase.BEFORE_TEST_METHOD)
-    void updateUserRole_AsCustomer_ReturnsForbidden() throws Exception {
-        UpdateUserRoleRequest request = TestUtil.createUpdateUserRoleRequest();
-
-        mockMvc.perform(put(UPDATE_ROLE_URL, USER_ID)
-                        .contentType(MediaType.APPLICATION_JSON)
-                        .content(objectMapper.writeValueAsString(request)))
-                .andExpect(status().isForbidden());
+                .andExpect(status().is(expectedStatus));
     }
 
     @Test
