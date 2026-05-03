@@ -2,7 +2,6 @@ package com.origin.controller;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.origin.dto.payment.CreatePaymentRequest;
-import com.origin.dto.rental.CreateRentalRequest;
 import com.origin.model.Rental;
 import com.origin.model.enums.PaymentType;
 import com.origin.service.payment.StripeService;
@@ -18,11 +17,7 @@ import org.springframework.http.MediaType;
 import org.springframework.security.test.context.support.WithUserDetails;
 import org.springframework.test.context.jdbc.Sql;
 import org.springframework.test.web.servlet.MockMvc;
-
-import javax.swing.text.StringContent;
-
 import java.math.BigDecimal;
-
 import static com.origin.util.TestConstants.*;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.eq;
@@ -30,7 +25,6 @@ import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
-import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
 
 @SpringBootTest
@@ -41,7 +35,6 @@ public class PaymentControllerTest {
     private static final String PAYMENTS_CANCEL_PATH = "/payments/cancel";
     private static final String PAYMENTS_ID_PATH = "/payments/{rentalId}";
     private static final Long ID = 2L;
-    private static final Long INVALID_ID = 999L;
 
     @Autowired
     private MockMvc mockMvc;
@@ -62,7 +55,7 @@ public class PaymentControllerTest {
         Session session = mock(Session.class);
 
         when(session.getId()).thenReturn("test_id");
-        when(session.getUrl()).thenReturn("http://testurl.com");
+        when(session.getUrl()).thenReturn("https://testurl.com");
         when(stripeService.createStripeSession(any(Rental.class), any(BigDecimal.class), eq(createPaymentRequest.paymentType())))
                 .thenReturn(session);
 
@@ -70,7 +63,7 @@ public class PaymentControllerTest {
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(createPaymentRequest)))
                 .andExpect(status().isCreated())
-                .andExpect(jsonPath("$.sessionUrl").value("http://testurl.com"));
+                .andExpect(jsonPath("$.sessionUrl").value("https://testurl.com"));
     }
 
     @Test
@@ -154,7 +147,7 @@ public class PaymentControllerTest {
         Session session = mock(Session.class);
 
         when(session.getId()).thenReturn("test_id");
-        when(session.getUrl()).thenReturn("http://testurl.com");
+        when(session.getUrl()).thenReturn("https://testurl.com");
         when(session.getPaymentStatus()).thenReturn("paid");
         when(stripeService.getStripeSession("test_id"))
                 .thenReturn(session);

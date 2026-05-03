@@ -1,4 +1,4 @@
-package com.origin.service;
+package com.origin.service.payment;
 
 import com.origin.dto.payment.CreatePaymentRequest;
 import com.origin.dto.payment.PaymentResponse;
@@ -14,8 +14,6 @@ import com.origin.model.enums.PaymentType;
 import com.origin.notification.impl.NotificationServiceImpl;
 import com.origin.repository.payment.PaymentRepository;
 import com.origin.repository.rental.RentalRepository;
-import com.origin.service.payment.PaymentServiceImpl;
-import com.origin.service.payment.StripeService;
 import com.origin.util.TestUtil;
 import com.stripe.exception.InvalidRequestException;
 import com.stripe.exception.StripeException;

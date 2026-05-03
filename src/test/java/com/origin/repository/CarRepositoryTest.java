@@ -51,8 +51,8 @@ class CarRepositoryTest {
     void shouldThrowException_WhenSavingInvalidCar() {
         Car car = new Car();
 
-        assertThrows(Exception.class, () -> {
-            carRepository.save(car);
-        });
+        assertThrows(Exception.class, () ->
+            carRepository.save(car)
+        );
     }
 }

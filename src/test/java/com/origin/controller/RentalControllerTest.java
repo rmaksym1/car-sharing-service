@@ -25,7 +25,6 @@ public class RentalControllerTest {
     private static final String RENTALS_PATH = "/rentals";
     private static final String RENTALS_ID_PATH = "/rentals/{id}";
     private static final Long ID = 1L;
-    private static final Long INVALID_ID = 999L;
 
     @Autowired
     private MockMvc mockMvc;

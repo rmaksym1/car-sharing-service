@@ -18,8 +18,7 @@ import org.springframework.test.context.jdbc.Sql;
 import org.springframework.test.web.servlet.MockMvc;
 import java.math.BigDecimal;
 
-import static com.origin.util.TestConstants.ADD_CAR_DB_PATH;
-import static com.origin.util.TestConstants.CLEANUP_DB_PATH;
+import static com.origin.util.TestConstants.*;
 import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.user;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
@@ -30,8 +29,8 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 public class CarControllerTest {
     private static final String CARS_PATH = "/cars";
     private static final String CARS_ID_PATH = "/cars/{id}";
+    private static final String CARS_ID_INVENTORY_PATH = "/cars/{id}/inventory";
     private static final Long ID = 1L;
-    private static final Long INVALID_ID = 999L;
 
     @Autowired
     private MockMvc mockMvc;
@@ -150,7 +149,7 @@ public class CarControllerTest {
     void updateCarInventory_ByRole_ReturnsResponse(String role, int expectedStatus) throws Exception {
         UpdateCarInventoryRequest request = TestUtil.createUpdateCarInventoryRequest();
 
-        var result = mockMvc.perform(patch(CARS_ID_PATH + "/inventory", ID)
+        var result = mockMvc.perform(patch(CARS_ID_INVENTORY_PATH, ID)
                         .contentType(MediaType.APPLICATION_JSON)
                         .with(user("test").roles(role))
                         .content(objectMapper.writeValueAsString(request)))
@@ -169,7 +168,7 @@ public class CarControllerTest {
     void updateCarInventory_InvalidId_ReturnsNotFound() throws Exception {
         UpdateCarInventoryRequest request = TestUtil.createUpdateCarInventoryRequest();
 
-        mockMvc.perform(patch(CARS_ID_PATH + "/inventory", INVALID_ID)
+        mockMvc.perform(patch(CARS_ID_INVENTORY_PATH, INVALID_ID)
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(request)))
                 .andExpect(status().isNotFound());

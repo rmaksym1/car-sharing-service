@@ -14,7 +14,5 @@ public class TestConstants {
     public static final String ADD_PAYMENT_DB_PATH =
             "/database/payment/add-payment-to-payments-table.sql";
 
-
-    public static final String CUSTOMER_ROLE = "USER";
-    public static final String ADMIN_ROLE = "ADMIN";
+    public static final Long INVALID_ID = 999L;
 }
