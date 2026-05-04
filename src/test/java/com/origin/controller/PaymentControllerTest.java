@@ -59,7 +59,7 @@ public class PaymentControllerTest {
         when(stripeService.createStripeSession(any(Rental.class), any(BigDecimal.class), eq(createPaymentRequest.paymentType())))
                 .thenReturn(session);
 
-        mockMvc.perform(post(PAYMENTS_ID_PATH, ID)
+        mockMvc.perform(post(PAYMENTS_PATH)
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(createPaymentRequest)))
                 .andExpect(status().isCreated())
