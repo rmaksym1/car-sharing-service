@@ -122,7 +122,7 @@ The project follows a layered architecture:
 - Password hashing with BCrypt
 - Custom UserDetailsService
 - Method-level security with `@PreAuthorize`
-- 
+
 ### [⬆ Back to Table of Contents](#-table-of-contents)
 
 ---
