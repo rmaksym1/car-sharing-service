@@ -42,7 +42,7 @@ public class PaymentController {
     }
 
     @Operation(summary = "Create new payment", description = "Endpoint for creating new payment")
-    @PostMapping("/{rentalId}")
+    @PostMapping
     @ResponseStatus(HttpStatus.CREATED)
     @PreAuthorize("hasRole('CUSTOMER')")
     public PaymentResponse createPayment(@RequestBody @Valid CreatePaymentRequest request) {
